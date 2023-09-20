@@ -2,7 +2,7 @@
 # AuthorTodo
 ```
 query {
-  findTodosByAuthorName(name: "John Doe") {
+  findTodosByAuthorName(name: "Kunal") {
     Id
     Text
     Done
@@ -16,23 +16,20 @@ mutation {
     Id
   }
 }
-
 ```
 ```
 mutation {
-  createTodo(text: "Buy groceries", authorId: "YOUR_AUTHOR_ID_HERE") {
+  createTodo(text: "Buy groceries", authorId: "AUTHOR_ID_HERE") {
     Id
     Text
     Done
     AuthorId
   }
 }
-
-
 ```
 ```
 mutation {
-  createTodo(text: "Buy groceries", authorId: "YOUR_AUTHOR_ID_HERE") {
+  createTodo(text: "Buy a Car", authorId: "AUTHOR_ID_HERE") {
     Id
     Text
     Done
@@ -42,7 +39,7 @@ mutation {
 ```
 ```
 query {
-  getAuthorAndTodos(authorId: "YOUR_AUTHOR_ID_HERE") {
+  getAuthorAndTodos(authorId: "AUTHOR_ID_HERE") {
     author {
       Id
       Name
@@ -54,7 +51,6 @@ query {
     }
   }
 }
-
 ```
 ```
 mutation {
@@ -63,7 +59,6 @@ mutation {
     Name
   }
 }
-
 ```
 
 
