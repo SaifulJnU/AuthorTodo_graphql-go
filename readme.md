@@ -1,3 +1,6 @@
+
+# AuthorTodo
+```
 mutation{
    addAuthor(title : "Rifat"){
    id,
@@ -5,7 +8,8 @@ mutation{
    have_book
    }
 }
-
+```
+```go
 //single page implementation
 package main
 
@@ -220,3 +224,5 @@ func main() {
 
 	router.Run(":8081")
 }
+
+```
