@@ -1,14 +1,72 @@
 
 # AuthorTodo
 ```
-mutation{
-   addAuthor(title : "Rifat"){
-   id,
-   name,
-   have_book
-   }
+query {
+  findTodosByAuthorName(name: "John Doe") {
+    Id
+    Text
+    Done
+    AuthorId
+  }
 }
 ```
+```
+mutation {
+  deleteTodo(id: "TODO_ID_HERE") {
+    Id
+  }
+}
+
+```
+```
+mutation {
+  createTodo(text: "Buy groceries", authorId: "YOUR_AUTHOR_ID_HERE") {
+    Id
+    Text
+    Done
+    AuthorId
+  }
+}
+
+
+```
+```
+mutation {
+  createTodo(text: "Buy groceries", authorId: "YOUR_AUTHOR_ID_HERE") {
+    Id
+    Text
+    Done
+    AuthorId
+  }
+}
+```
+```
+query {
+  getAuthorAndTodos(authorId: "YOUR_AUTHOR_ID_HERE") {
+    author {
+      Id
+      Name
+    }
+    todos {
+      Id
+      Text
+      Done
+    }
+  }
+}
+
+```
+```
+mutation {
+  createAuthor(name: "Rahim") {
+    Id
+    Name
+  }
+}
+
+```
+
+
 ```go
 //single page implementation
 package main
