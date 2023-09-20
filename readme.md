@@ -6,7 +6,7 @@ mutation{
    }
 }
 
-
+//single page implementation
 package main
 
 import (
