@@ -5,9 +5,20 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	"github.com/saifuljnu/todo/config"
 	db "github.com/saifuljnu/todo/db/mongo"
 	"github.com/saifuljnu/todo/todoql"
 )
+
+func init() {
+	err := godotenv.Load()
+	if err != nil {
+		panic(err)
+	}
+	config.SetEnvionment()
+
+}
 
 func main() {
 	// Initialize MongoDB

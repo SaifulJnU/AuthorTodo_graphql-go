@@ -9,7 +9,7 @@ import (
 
 // This returns an HTTP handler for the Author GraphQL schema.
 func AuthorGraphQLHandler(ac AuthorController) http.Handler {
-	
+
 	authorCollection := ac.db.Database("todoDB").Collection("author")
 	authorTodoCollection := ac.db.Database("todoDB").Collection("todos")
 
@@ -28,17 +28,13 @@ func AuthorGraphQLHandler(ac AuthorController) http.Handler {
 	return graphQLHandler
 }
 
-
-
-
-
 // func TodoGraphQLHandler(td TodoController) http.Handler {
 // 	todoCollection := td.db.Database("todoDB").Collection("todos")
 // 	todoSchema := NewTodoSchema()
 // 	graphQLHandler := handler.New(&handler.Config{
 // 		Schema: &todoSchema,
 // 		Pretty: true,
-// 		//GraphiQL: true, 
+// 		//GraphiQL: true,
 // 	})
 // 	SetTodoCollection(todoCollection)
 // 	//SetAuthorTodoCollection(todoCollection)

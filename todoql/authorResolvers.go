@@ -3,6 +3,9 @@ package todoql
 import (
 	"context"
 	"fmt"
+	"log"
+
+	"github.com/graph-gophers/dataloader"
 
 	"github.com/graphql-go/graphql"
 	"github.com/saifuljnu/todo/models"
@@ -217,6 +220,119 @@ func resolveFindTodosByAuthorName(params graphql.ResolveParams) (interface{}, er
 
 	err = cursor.All(context.Background(), &todos)
 	if err != nil {
+		return nil, err
+	}
+
+	return todos, nil
+}
+
+/////////////////////////////Data loader///////////////////////////////////
+
+var Keys = "todosLoader"
+
+// DataLoader instance
+var todosLoader = dataloader.NewBatchedLoader(batchLoadTodosByAuthorIDs)
+
+func batchLoadTodosByAuthorIDs(ctx context.Context, keys dataloader.Keys) []*dataloader.Result {
+	todosByAuthor := make(map[string][]models.AuthorTodo)
+
+	// Extract unique author IDs from the keys
+	var authorIDs []primitive.ObjectID
+	for _, key := range keys {
+		authorID := key.String()
+		authorHexID, err := primitive.ObjectIDFromHex(authorID)
+		if err != nil {
+			log.Printf("Error parsing author ID: %v", err)
+			continue
+		}
+		authorIDs = append(authorIDs, authorHexID)
+	}
+
+	// Fetch todos from the database based on author IDs
+	todos, err := fetchTodosByAuthorIDs(ctx, authorIDs)
+	if err != nil {
+		log.Printf("Error fetching todos: %v", err)
+	}
+
+	// Organize todos by author ID
+	for _, todo := range todos {
+		todosByAuthor[todo.AuthorID.Hex()] = append(todosByAuthor[todo.AuthorID.Hex()], todo)
+	}
+
+	// Create results for each key
+	var results []*dataloader.Result
+	for _, key := range keys {
+		authorID := key.String()
+		todos := todosByAuthor[authorID]
+		results = append(results, &dataloader.Result{Data: todos, Error: nil})
+	}
+
+	return results
+}
+
+// resolver function to use DataLoader
+func resolveGetAuthorAndTodoss(params graphql.ResolveParams) (interface{}, error) {
+	authorID, isOK := params.Args["authorId"].(string)
+	if !isOK {
+		return nil, nil
+	}
+
+	// DataLoader to load todos for the author ID
+	loaderResult := todosLoader.Load(params.Context, dataloader.StringKey(authorID))
+
+	// extract the result from the DataLoader Thunk
+	loadedTodos, err := loaderResult()
+	if err != nil {
+		log.Printf("Error loading todos with DataLoader: %v", err)
+		return nil, err
+	}
+
+	// Convert the result to the appropriate type (slice of AuthorTodo)
+	todos, ok := loadedTodos.([]models.AuthorTodo)
+	if !ok {
+		log.Printf("Error asserting todo type from DataLoader: %v", err)
+		return nil, fmt.Errorf("failed to assert todo type")
+	}
+
+	authorHexID, err := primitive.ObjectIDFromHex(authorID)
+	if err != nil {
+		log.Printf("Error parsing author ID: %v", err)
+		return nil, err
+	}
+
+	// Fetch Author data
+	var author models.Author
+	authorQuery := bson.M{"_id": authorHexID}
+	err = authorCollection.FindOne(params.Context, authorQuery).Decode(&author)
+	if err != nil {
+		log.Printf("Error fetching author: %v", err)
+		return nil, err
+	}
+
+	// Combine the author and todos into the result
+	result := map[string]interface{}{
+		"author": author,
+		"todos":  todos,
+	}
+	return result, nil
+}
+
+// Fetch todos by author IDs from the database
+func fetchTodosByAuthorIDs(ctx context.Context, authorIDs []primitive.ObjectID) ([]models.AuthorTodo, error) {
+	var todos []models.AuthorTodo
+
+	// query to find todos by author IDs
+	query := bson.M{"authorId": bson.M{"$in": authorIDs}}
+
+	// Fetch todos from the database
+	cursor, err := authorTodoCollection.Find(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	// Decode todos into a slice
+	if err := cursor.All(ctx, &todos); err != nil {
 		return nil, err
 	}
 

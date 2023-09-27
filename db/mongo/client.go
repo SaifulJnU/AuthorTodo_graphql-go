@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/saifuljnu/todo/config"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func SetupMongoDB() (*mongo.Client, *mongo.Collection, error) {
 	// Define MongoDB connection options.
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	clientOptions := options.Client().ApplyURI(config.MongoDB_URI)
 
 	// Initialize MongoDB client.
 	client, err := mongo.Connect(context.Background(), clientOptions)

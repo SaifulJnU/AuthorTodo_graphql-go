@@ -140,6 +140,28 @@ var authorRootQuery = graphql.NewObject(graphql.ObjectConfig{
 				return resolveFindTodosByAuthorName(params)
 			},
 		},
+
+		"getAuthorAndTodoss": &graphql.Field{
+			Type: graphql.NewObject(graphql.ObjectConfig{
+				Name: "AuthorAndTodos",
+				Fields: graphql.Fields{
+					"author": &graphql.Field{
+						Type: authorType,
+					},
+					"todos": &graphql.Field{
+						Type: graphql.NewList(authorTodoType),
+					},
+				},
+			}),
+			Args: graphql.FieldConfigArgument{
+				"authorId": &graphql.ArgumentConfig{
+					Type: graphql.String,
+				},
+			},
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				return resolveGetAuthorAndTodoss(p)
+			},
+		},
 	},
 })
 
